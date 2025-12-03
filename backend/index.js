@@ -14,13 +14,9 @@ const getBackendUrl = () => {
   return 'http://localhost:5000';
 };
 
-// CORS configuration
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [process.env.APP_URL, process.env.FRONTEND_URL] 
-  : ['http://localhost:3000', 'http://localhost:3001'];
-
+// CORS configuration - simplified for debugging
 app.use(cors({
-  origin: allowedOrigins,
+  origin: true,
   credentials: true
 }));
 
@@ -47,13 +43,15 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Export for Vercel
-module.exports = app;
-
 // For local development
 if (!isServerless) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`🚀 Test server running on port ${PORT}`);
   });
+} else {
+  console.log('🚀 Running in serverless mode');
 }
+
+// Export for Vercel
+module.exports = app;
