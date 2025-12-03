@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const { spawn } = require('child_process');
+// const { spawn } = require('child_process'); // Disabled for serverless
 const path = require('path');
-const fs = require('fs');
+// const fs = require('fs'); // Disabled for serverless
 const { Octokit } = require('@octokit/rest');
 const git = require('isomorphic-git');
 const http = require('isomorphic-git/http/node');
@@ -14,6 +14,21 @@ require('dotenv').config();
 
 
 const app = express();
+
+// Serverless environment detection
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY;
+
+// Serverless-safe file system operations
+const fs = isServerless ? {
+  existsSync: () => false,
+  mkdirSync: () => { throw new Error('File operations not supported in serverless environment'); },
+  rmSync: () => { throw new Error('File operations not supported in serverless environment'); },
+  readdirSync: () => { throw new Error('File operations not supported in serverless environment'); },
+  lstatSync: () => { throw new Error('File operations not supported in serverless environment'); }
+} : require('fs');
+
+// Serverless-safe spawn function
+const spawn = isServerless ? () => { throw new Error('Child processes not supported in serverless environment'); } : require('child_process').spawn;
 
 // Helper function to get frontend URL
 const getFrontendUrl = () => process.env.APP_URL || 'http://localhost:3000';
@@ -680,6 +695,14 @@ app.get('/github/repos', requireOAuthAuth, async (req, res) => {
 
 // Clone a repository (OAuth required) - Using isomorphic-git
 app.post('/github/clone', requireOAuthAuth, async (req, res) => {
+  // Disable in serverless environments
+  if (isServerless) {
+    return res.status(501).json({
+      error: "Repository cloning not supported in serverless environment",
+      suggestion: "Use GitHub's web interface or a local development environment for cloning"
+    });
+  }
+
   let targetPath = null; // Declare at function scope for cleanup
 
   try {
@@ -816,6 +839,14 @@ app.get('/github/test-isomorphic-git', (req, res) => {
 
 // Git status for a repository (OAuth required) - Using isomorphic-git
 app.get('/github/git-status/:repoPath', requireOAuthAuth, async (req, res) => {
+  // Disable in serverless environments
+  if (isServerless) {
+    return res.status(501).json({
+      error: "Git operations not supported in serverless environment",
+      suggestion: "Use GitHub's web interface or a local development environment for git operations"
+    });
+  }
+
   try {
     const repoPath = decodeURIComponent(req.params.repoPath);
 
@@ -865,6 +896,14 @@ app.get('/github/git-status/:repoPath', requireOAuthAuth, async (req, res) => {
 
 // Git pull for a repository (OAuth required) - Using isomorphic-git
 app.post('/github/git-pull/:repoPath', requireOAuthAuth, async (req, res) => {
+  // Disable in serverless environments
+  if (isServerless) {
+    return res.status(501).json({
+      error: "Git operations not supported in serverless environment",
+      suggestion: "Use GitHub's web interface or a local development environment for git operations"
+    });
+  }
+
   try {
     const repoPath = decodeURIComponent(req.params.repoPath);
 
@@ -1100,6 +1139,14 @@ app.get('/admin/status', (req, res) => {
 });
 
 app.post('/upload-folder', (req, res) => {
+  // Disable in serverless environments
+  if (isServerless) {
+    return res.status(501).json({
+      error: "Local folder operations not supported in serverless environment",
+      suggestion: "Use a local development environment for folder operations"
+    });
+  }
+
   const { folder } = req.body;
   console.log('Received folder path:', folder);
 
@@ -1134,6 +1181,14 @@ app.post('/upload-folder', (req, res) => {
 
 
 app.post('/query', (req, res) => {
+  // Disable in serverless environments
+  if (isServerless) {
+    return res.status(501).json({
+      error: "Auggie CLI not supported in serverless environment",
+      suggestion: "Use a local development environment to run Auggie CLI queries"
+    });
+  }
+
   const { query } = req.body;
   if (!folderPath) return res.status(400).json({ error: "Folder not set!" });
   if (!query || typeof query !== 'string') return res.status(400).json({ error: "Query missing or invalid" });
