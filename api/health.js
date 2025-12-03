@@ -1,7 +1,7 @@
 // Simple health check endpoint for Vercel
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   console.log('Health check called via /api/health');
-  
+
   res.status(200).json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -9,4 +9,4 @@ export default function handler(req, res) {
     vercel: !!process.env.VERCEL,
     message: 'Backend is working via /api directory'
   });
-}
+};

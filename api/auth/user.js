@@ -1,7 +1,7 @@
 // OAuth user status endpoint for Vercel
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   console.log('Auth user endpoint called via /api/auth/user');
-  
+
   res.status(200).json({
     authenticated: false,
     oauthConfigured: !!(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET),
@@ -10,4 +10,4 @@ export default function handler(req, res) {
     timestamp: new Date().toISOString(),
     message: 'OAuth endpoint working via /api directory'
   });
-}
+};
