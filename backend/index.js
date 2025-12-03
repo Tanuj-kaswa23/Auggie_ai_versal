@@ -18,6 +18,14 @@ const app = express();
 // Helper function to get frontend URL
 const getFrontendUrl = () => process.env.APP_URL || 'http://localhost:3000';
 
+// Helper function to get backend URL
+const getBackendUrl = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.BACKEND_URL || process.env.APP_URL || 'https://auggie-ai.vercel.app';
+  }
+  return 'http://localhost:5000';
+};
+
 // CORS configuration for development and production
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [process.env.APP_URL, process.env.FRONTEND_URL] // Production URLs
@@ -106,7 +114,7 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
 
     const params = new URLSearchParams({
       client_id: process.env.GITHUB_CLIENT_ID,
-      redirect_uri: 'http://localhost:5000/auth/github/callback',
+      redirect_uri: `${getBackendUrl()}/auth/github/callback`,
       scope: 'user:email repo',
       state: state,
       response_type: 'code'
@@ -152,7 +160,7 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
           client_id: process.env.GITHUB_CLIENT_ID,
           client_secret: process.env.GITHUB_CLIENT_SECRET,
           code: code,
-          redirect_uri: 'http://localhost:5000/auth/github/callback'
+          redirect_uri: `${getBackendUrl()}/auth/github/callback`
         })
       });
 
@@ -261,7 +269,7 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
   passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: "http://localhost:5000/auth/github/callback",
+    callbackURL: `${getBackendUrl()}/auth/github/callback`,
     scope: ['user:email', 'repo'],
     userAgent: 'Augment-CLI-UI-App/1.0'
   }, async (accessToken, refreshToken, profile, done) => {
