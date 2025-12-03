@@ -27,6 +27,10 @@
       "dest": "backend/index.js"
     },
     {
+      "src": "/health",
+      "dest": "backend/index.js"
+    },
+    {
       "src": "/static/(.*)",
       "dest": "frontend/static/$1"
     },

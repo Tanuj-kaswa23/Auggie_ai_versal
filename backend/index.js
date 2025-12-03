@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('cors');
+// const cors = require('cors'); // Temporarily disabled for debugging
 
 const app = express();
 
@@ -14,11 +14,11 @@ const getBackendUrl = () => {
   return 'http://localhost:5000';
 };
 
-// CORS configuration - simplified for debugging
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
+// CORS configuration - disabled for debugging
+// app.use(cors({
+//   origin: true,
+//   credentials: true
+// }));
 
 app.use(express.json());
 
