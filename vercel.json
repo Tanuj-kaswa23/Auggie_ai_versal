@@ -19,6 +19,14 @@
       "dest": "backend/index.js"
     },
     {
+      "src": "/auth/(.*)",
+      "dest": "backend/index.js"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "backend/index.js"
+    },
+    {
       "src": "/static/(.*)",
       "dest": "frontend/static/$1"
     },
